@@ -41,6 +41,7 @@ namespace VidCompare
         Label[] contrastLabels;
         CheckBox[] invertedBoxes;
         CheckBox[] grayscaleBoxes;
+        Label[] timeLabels;
         Capture[] videos = new Capture[2];
         VideoProperties[] properties = new VideoProperties[4];
 
@@ -56,6 +57,7 @@ namespace VidCompare
             contrastLabels = new Label[4] { contrastLabel0, contrastLabel1, contrastLabel2, contrastLabel3 };
             invertedBoxes = new CheckBox[4] { invertBox0, invertBox1, invertBox2, invertBox3 };
             grayscaleBoxes = new CheckBox[4] { grayscaleBox0, grayscaleBox1, grayscaleBox2, grayscaleBox3 };
+            timeLabels = new Label[2] { timeLabel0, timeLabel1 };
 
             for (int i = 0; i < properties.Length; ++i)
             {
@@ -230,6 +232,7 @@ namespace VidCompare
                 if (properties[input].format == InputFormat.Image)
                 {
                     frame = properties[input].frame;
+                    timeLabels[input].Content = "--:--/--:--";
                 }
                 else
                 {
@@ -244,6 +247,7 @@ namespace VidCompare
                         frame = Math.Min(max - 1, frame);
                     }
                     videos[input].SetCaptureProperty(CapProp.PosFrames, frame);
+                    double fps = videos[input].GetCaptureProperty(CapProp.Fps);
 
                     try
                     {
@@ -260,6 +264,13 @@ namespace VidCompare
                             FontFace.HersheyPlain, 3.0, new Bgr(0, 0, 0).MCvScalar);
                         mats[input] = matsOrig[input].Clone();
                     }
+                    int totalSeconds = (int)(max / fps);
+                    int totalMinutes = totalSeconds / 60;
+                    totalSeconds %= 60;
+                    int seconds = (int)(frame / fps);
+                    int minutes = seconds / 60;
+                    seconds %= 60;
+                    timeLabels[input].Content = String.Format("{0:D2}:{1:D2}/{2:D2}:{3:D2}", minutes, seconds, totalMinutes, totalSeconds);
                 }
             }
             else if (input == 2)
